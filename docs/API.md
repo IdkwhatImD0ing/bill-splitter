@@ -114,16 +114,20 @@ Requires valid JWT token in `auth_token` cookie.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `imageUrl` | string | No | URL of receipt image (from Supabase Storage) |
+| `imageUrls` | string[] | No | URLs of the receipt images (from Supabase Storage). Several images are treated as pages of one bill |
+| `imageUrl` | string | No | **Deprecated.** Single image URL, still accepted for older clients. Ignored when `imageUrls` is present |
 | `prompt` | string | Yes | Description of who ordered what |
 
 ### Example Requests
 
-**With Image:**
+**With Images:**
 
 ```json
 {
-  "imageUrl": "https://xxx.supabase.co/storage/v1/object/public/receipts/image.jpg",
+  "imageUrls": [
+    "https://xxx.supabase.co/storage/v1/object/public/receipts/page-1.jpg",
+    "https://xxx.supabase.co/storage/v1/object/public/receipts/page-2.jpg"
+  ],
   "prompt": "John had the burger and fries. Jane had the Caesar salad. We split the nachos and added 20% tip."
 }
 ```
@@ -201,8 +205,10 @@ const billSplitSchema = {
 
 **Image Analysis Prompt:**
 
-Used when `imageUrl` is provided. Instructs the AI to:
-1. Identify all items on the receipt and their prices
+Used when at least one image is provided. Multiple images are treated as pages
+or close-ups of the *same* bill, merged into one item list with duplicate lines
+counted once. Instructs the AI to:
+1. Identify all items across the receipt images and their prices
 2. Match items to people based on the user's description
 3. Calculate subtotals for each person
 4. Apply tax proportionally
@@ -228,18 +234,18 @@ Used when no image is provided. Instructs the AI to:
 ### Implementation Details
 
 ```typescript
-// Build request based on image presence
-const hasImage = !!imageUrl
-const systemPrompt = hasImage ? IMAGE_SYSTEM_PROMPT : TEXT_ONLY_SYSTEM_PROMPT
+// Accept the image list, falling back to the deprecated single-image field
+const images = Array.isArray(imageUrls)
+  ? imageUrls.filter(url => typeof url === 'string' && url.length > 0)
+  : imageUrl ? [imageUrl] : []
 
-const userContent = hasImage
-  ? [
-      { type: 'input_image', image_url: imageUrl, detail: 'auto' },
-      { type: 'input_text', text: prompt }
-    ]
-  : [
-      { type: 'input_text', text: prompt }
-    ]
+const systemPrompt = images.length > 0 ? IMAGE_SYSTEM_PROMPT : TEXT_ONLY_SYSTEM_PROMPT
+
+// Every image is sent alongside a single prompt
+const userContent = [
+  ...images.map(url => ({ type: 'input_image', image_url: url, detail: 'auto' })),
+  { type: 'input_text', text: prompt }
+]
 
 // Call OpenAI Responses API
 const response = await openai.responses.create({
@@ -325,7 +331,7 @@ Example usage in React component:
 const response = await fetch('/api/analyze-receipt', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ imageUrl, prompt: prompt.trim() })
+  body: JSON.stringify({ imageUrls, prompt: prompt.trim() })
 })
 
 const data = await response.json()

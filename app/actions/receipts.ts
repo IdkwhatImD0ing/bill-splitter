@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase'
 import { isAuthenticated } from '@/lib/auth'
+import { getReceiptImages, storagePathFromUrl } from '@/lib/receipt-images'
 import type { BillItemBreakdown } from '@/lib/types'
 
 // Helper to ensure user is authenticated for all actions
@@ -48,7 +49,7 @@ export async function getReceipt(id: string) {
   return data
 }
 
-export async function createReceipt(name: string, date: string, imageUrl: string | null, notes?: string) {
+export async function createReceipt(name: string, date: string, imageUrls: string[], notes?: string) {
   await requireAuth()
   
   const supabase = createServerSupabaseClient()
@@ -64,7 +65,13 @@ export async function createReceipt(name: string, date: string, imageUrl: string
   // Create receipt record
   const { data, error } = await supabase
     .from('receipts')
-    .insert({ image_url: imageUrl, name, date, notes: notes || null })
+    .insert({
+      image_urls: imageUrls,
+      image_url: imageUrls[0] ?? null,
+      name,
+      date,
+      notes: notes || null,
+    })
     .select()
     .single()
 
@@ -80,18 +87,16 @@ export async function deleteReceipt(id: string) {
   
   const supabase = createServerSupabaseClient()
   
-  // First get the receipt to find the image URL
+  // First get the receipt to find its images
   const { data: receipt } = await supabase
     .from('receipts')
-    .select('image_url')
+    .select('image_urls, image_url')
     .eq('id', id)
     .single()
 
-  if (receipt?.image_url) {
-    // Extract filename from URL and delete from storage
-    const urlParts = receipt.image_url.split('/')
-    const fileName = urlParts[urlParts.length - 1]
-    await supabase.storage.from('receipts').remove([fileName])
+  const images = receipt ? getReceiptImages(receipt) : []
+  if (images.length > 0) {
+    await supabase.storage.from('receipts').remove(images.map(storagePathFromUrl))
   }
 
   const { error } = await supabase
@@ -158,34 +163,72 @@ export async function toggleBillItemPaid(itemId: string, receiptId: string, paid
   return { success: true }
 }
 
-export async function updateReceiptImage(receiptId: string, imageUrl: string) {
+// Writes the image list, keeping the legacy image_url column mirrored to the
+// first image so OpenGraph cards and older reads stay correct.
+async function saveReceiptImages(
+  supabase: ReturnType<typeof createServerSupabaseClient>,
+  receiptId: string,
+  images: string[]
+) {
+  return supabase
+    .from('receipts')
+    .update({ image_urls: images, image_url: images[0] ?? null })
+    .eq('id', receiptId)
+}
+
+export async function addReceiptImages(receiptId: string, imageUrls: string[]) {
   await requireAuth()
-  
+
+  if (!imageUrls || imageUrls.length === 0) {
+    return { error: 'No images provided' }
+  }
+
   const supabase = createServerSupabaseClient()
 
-  // Get current receipt to check for existing image
+  // Read the current list so new images are appended rather than replacing it
   const { data: receipt } = await supabase
     .from('receipts')
-    .select('image_url')
+    .select('image_urls, image_url')
     .eq('id', receiptId)
     .single()
 
-  // Delete old image if exists
-  if (receipt?.image_url) {
-    const urlParts = receipt.image_url.split('/')
-    const oldFileName = urlParts[urlParts.length - 1]
-    await supabase.storage.from('receipts').remove([oldFileName])
-  }
-
-  // Update receipt record with new image URL
-  const { error } = await supabase
-    .from('receipts')
-    .update({ image_url: imageUrl })
-    .eq('id', receiptId)
+  const existing = receipt ? getReceiptImages(receipt) : []
+  const { error } = await saveReceiptImages(supabase, receiptId, [...existing, ...imageUrls])
 
   if (error) {
-    return { error: `Failed to update receipt: ${error.message}` }
+    return { error: `Failed to add images: ${error.message}` }
   }
+
+  revalidatePath(`/receipts/${receiptId}`)
+  return { success: true }
+}
+
+export async function removeReceiptImage(receiptId: string, imageUrl: string) {
+  await requireAuth()
+
+  const supabase = createServerSupabaseClient()
+
+  const { data: receipt } = await supabase
+    .from('receipts')
+    .select('image_urls, image_url')
+    .eq('id', receiptId)
+    .single()
+
+  const existing = receipt ? getReceiptImages(receipt) : []
+  const remaining = existing.filter(url => url !== imageUrl)
+
+  if (remaining.length === existing.length) {
+    return { error: 'Image not found on this receipt' }
+  }
+
+  const { error } = await saveReceiptImages(supabase, receiptId, remaining)
+
+  if (error) {
+    return { error: `Failed to remove image: ${error.message}` }
+  }
+
+  // Only drop the stored object once the row no longer references it
+  await supabase.storage.from('receipts').remove([storagePathFromUrl(imageUrl)])
 
   revalidatePath(`/receipts/${receiptId}`)
   return { success: true }

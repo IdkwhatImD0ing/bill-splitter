@@ -133,7 +133,7 @@ const receipt = await getReceipt(receiptId)
 
 ---
 
-### `createReceipt(name: string, date: string, imageUrl: string | null, notes?: string)`
+### `createReceipt(name: string, date: string, imageUrls: string[], notes?: string)`
 
 Creates a new receipt.
 
@@ -142,7 +142,7 @@ Creates a new receipt.
 |------|------|----------|-------------|
 | `name` | string | Yes | Receipt name/title |
 | `date` | string | Yes | Date in YYYY-MM-DD format |
-| `imageUrl` | string \| null | No | URL to receipt image |
+| `imageUrls` | string[] | Yes | URLs of the receipt images (pass `[]` for none) |
 | `notes` | string | No | Optional notes |
 
 **Returns:**
@@ -155,7 +155,7 @@ Creates a new receipt.
 **Example Usage:**
 
 ```tsx
-const result = await createReceipt('Dinner', '2024-01-15', imageUrl, 'Team dinner')
+const result = await createReceipt('Dinner', '2024-01-15', imageUrls, 'Team dinner')
 if (result.error) {
   // Handle error
 } else {
@@ -275,15 +275,16 @@ if (result.error) {
 
 ---
 
-### `updateReceiptImage(receiptId: string, imageUrl: string)`
+### `addReceiptImages(receiptId: string, imageUrls: string[])`
 
-Updates the receipt image, deleting the old one if it exists.
+Appends one or more images to a receipt. A receipt can hold any number of
+images, which is useful when a single bill spans several photos.
 
 **Parameters:**
 | Name | Type | Description |
 |------|------|-------------|
 | `receiptId` | string | Receipt UUID |
-| `imageUrl` | string | New image URL |
+| `imageUrls` | string[] | URLs of the newly uploaded images |
 
 **Returns:**
 
@@ -293,15 +294,46 @@ Updates the receipt image, deleting the old one if it exists.
 ```
 
 **Flow:**
-1. Fetch current receipt to get existing image URL
-2. Delete old image from storage (if exists)
-3. Update receipt record with new URL
+1. Fetch the receipt's current image list
+2. Append the new URLs to it
+3. Write `image_urls` (and mirror the first entry to the legacy `image_url`)
 4. Revalidate page cache
 
 **Example Usage:**
 
 ```tsx
-const result = await updateReceiptImage(receiptId, newImageUrl)
+const result = await addReceiptImages(receiptId, [url1, url2])
+```
+
+---
+
+### `removeReceiptImage(receiptId: string, imageUrl: string)`
+
+Removes a single image from a receipt and deletes it from storage.
+
+**Parameters:**
+| Name | Type | Description |
+|------|------|-------------|
+| `receiptId` | string | Receipt UUID |
+| `imageUrl` | string | The image URL to remove |
+
+**Returns:**
+
+```typescript
+{ success: true }   // On success
+{ error: string }   // On failure, including when the URL isn't on the receipt
+```
+
+**Flow:**
+1. Fetch the receipt's current image list
+2. Drop the given URL from it and write the result
+3. Delete the stored object only once the row no longer references it
+4. Revalidate page cache
+
+**Example Usage:**
+
+```tsx
+const result = await removeReceiptImage(receiptId, imageUrl)
 ```
 
 ---
@@ -537,7 +569,8 @@ interface Receipt {
   id: string
   name: string | null
   date: string
-  image_url: string | null
+  image_urls: string[] | null  // source of truth, read via getReceiptImages()
+  image_url: string | null     // deprecated, mirrors image_urls[0]
   notes: string | null
   bill_items?: BillItem[]
   public_links?: PublicLink[]

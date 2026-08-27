@@ -280,7 +280,7 @@ Collapsible panel for AI-powered receipt analysis.
 ```typescript
 interface AIAnalysisProps {
   receiptId: string
-  imageUrl: string | null
+  imageUrls: string[]
   currentNotes: string | null
 }
 ```
@@ -314,7 +314,7 @@ const [editingIndex, setEditingIndex] = useState<number | null>(null)
 ```tsx
 <AIAnalysis 
   receiptId={receipt.id}
-  imageUrl={receipt.image_url}
+  imageUrls={getReceiptImages(receipt)}
   currentNotes={receipt.notes}
 />
 ```
@@ -553,29 +553,54 @@ interface EditNotesProps {
 
 **File**: `app/receipts/[id]/upload-image.tsx`
 
-Button for uploading/replacing receipt images.
+Dropzone for adding receipt images. Images are appended, so a receipt can hold
+several photos of the same bill.
 
 #### Props
 
 ```typescript
 interface UploadImageProps {
   receiptId: string
-  hasExistingImage: boolean
+  hasExistingImages: boolean
 }
 ```
 
 #### Features
 
-- File input trigger
+- File input trigger, multi-select and multi-file drag & drop
 - Image compression
-- Upload progress
+- Per-file upload progress ("Uploading image 2 of 3...")
 - Success/error states
-- Different label for new vs replace
+- Compact label once the receipt already has images
 
 #### Usage
 
 ```tsx
-<UploadImage receiptId={receipt.id} hasExistingImage={!!receipt.image_url} />
+<UploadImage receiptId={receipt.id} hasExistingImages={images.length > 0} />
+```
+
+---
+
+### ReceiptImages
+
+**File**: `app/receipts/[id]/receipt-images.tsx`
+
+Gallery of a receipt's images, each removable. Collapses to the first two
+images with a "Show N more" control so the sticky column stays a sane height.
+
+#### Props
+
+```typescript
+interface ReceiptImagesProps {
+  receiptId: string
+  images: string[]
+}
+```
+
+#### Usage
+
+```tsx
+<ReceiptImages receiptId={receipt.id} images={getReceiptImages(receipt)} />
 ```
 
 ---

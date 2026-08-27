@@ -288,10 +288,12 @@ export async function generateMetadata({ params }): Promise<Metadata> {
       title,
       description,
       type: 'website',
-      images: receipt.image_url ? [{ url: receipt.image_url }] : undefined,
+      // every receipt image, in order
+      images: images.length > 0 ? images.map(url => ({ url })) : undefined,
     },
     twitter: {
-      card: receipt.image_url ? 'summary_large_image' : 'summary',
+      card: images.length > 0 ? 'summary_large_image' : 'summary',
+      images: images.length > 0 ? [images[0]] : undefined, // Twitter shows one
     },
   }
 }

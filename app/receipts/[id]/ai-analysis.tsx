@@ -10,7 +10,7 @@ import type { BillItemBreakdown } from '@/lib/types'
 
 interface AIAnalysisProps {
   receiptId: string
-  imageUrl: string | null
+  imageUrls: string[]
   currentNotes: string | null
 }
 
@@ -20,7 +20,8 @@ interface BillItem {
   breakdown?: BillItemBreakdown
 }
 
-export function AIAnalysis({ receiptId, imageUrl, currentNotes }: AIAnalysisProps) {
+export function AIAnalysis({ receiptId, imageUrls, currentNotes }: AIAnalysisProps) {
+  const hasImages = imageUrls.length > 0
   const [isExpanded, setIsExpanded] = useState(false)
   const [prompt, setPrompt] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -63,7 +64,7 @@ export function AIAnalysis({ receiptId, imageUrl, currentNotes }: AIAnalysisProp
       const response = await fetch('/api/analyze-receipt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageUrl, prompt: prompt.trim() })
+        body: JSON.stringify({ imageUrls, prompt: prompt.trim() })
       })
 
       const data = await response.json()
@@ -188,8 +189,8 @@ export function AIAnalysis({ receiptId, imageUrl, currentNotes }: AIAnalysisProp
       {isExpanded && (
         <div className="px-4 pb-4 space-y-3 border-t border-violet-200/60 dark:border-violet-700/60">
           <p className="text-xs text-stone-500 dark:text-stone-400 pt-3">
-            {imageUrl 
-              ? 'Describe who ordered what and AI will analyze the receipt image to calculate what each person owes'
+            {hasImages
+              ? `Describe who ordered what and AI will analyze ${imageUrls.length > 1 ? `all ${imageUrls.length} receipt images together` : 'the receipt image'} to calculate what each person owes`
               : 'No receipt image? No problem! Describe the items, prices, and who ordered what, and AI will calculate the split'
             }
           </p>
@@ -199,7 +200,7 @@ export function AIAnalysis({ receiptId, imageUrl, currentNotes }: AIAnalysisProp
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder={imageUrl 
+              placeholder={hasImages
                 ? "e.g., John had the burger and fries. Jane had the Caesar salad. We split the appetizer nachos and added 20% tip."
                 : "e.g., John had the burger ($15) and fries ($5). Jane had the Caesar salad ($12). We split the appetizer nachos ($10). Tax was $3.50 and we added 20% tip."
               }
