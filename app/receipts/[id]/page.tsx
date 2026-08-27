@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { getReceipt } from '@/app/actions/receipts'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,7 +13,9 @@ import { EditNotes } from './edit-notes'
 import { JsonUpload } from './json-upload'
 import { AIAnalysis } from './ai-analysis'
 import { UploadImage } from './upload-image'
+import { ReceiptImages } from './receipt-images'
 import { formatDatePST } from '@/lib/date'
+import { getReceiptImages } from '@/lib/receipt-images'
 import type { BillItem } from '@/lib/types'
 import type { Metadata } from 'next'
 
@@ -64,6 +65,7 @@ export default async function ReceiptPage({ params }: ReceiptPageProps) {
 
   const totalAmount = receipt.bill_items?.reduce((sum: number, item: BillItem) => sum + item.amount, 0) || 0
   const publicLinkId = receipt.public_links?.[0]?.id
+  const images = getReceiptImages(receipt)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-50 via-background to-brand-100/50 dark:from-background dark:via-brand-50/5 dark:to-background">
@@ -97,30 +99,20 @@ export default async function ReceiptPage({ params }: ReceiptPageProps) {
           <Card className="card-receipt overflow-hidden lg:sticky lg:top-8 lg:self-start">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">
-                Receipt Image
-                {!receipt.image_url && (
+                {images.length > 1 ? `Receipt Images (${images.length})` : 'Receipt Image'}
+                {images.length === 0 && (
                   <span className="text-sm font-normal text-muted-foreground ml-2">(optional)</span>
                 )}
               </CardTitle>
-              {!receipt.image_url && (
+              {images.length === 0 && (
                 <CardDescription>
-                  You can add a receipt image later, or use AI analysis without one
+                  You can add receipt images later, or use AI analysis without one
                 </CardDescription>
               )}
             </CardHeader>
             <CardContent className="space-y-3">
-              {receipt.image_url && (
-                <div className="relative rounded-xl overflow-hidden bg-muted">
-                  <Image
-                    src={receipt.image_url}
-                    alt="Receipt"
-                    width={600}
-                    height={800}
-                    className="w-full h-auto max-h-[500px] object-contain"
-                  />
-                </div>
-              )}
-              <UploadImage receiptId={id} hasExistingImage={!!receipt.image_url} />
+              <ReceiptImages receiptId={id} images={images} />
+              <UploadImage receiptId={id} hasExistingImages={images.length > 0} />
             </CardContent>
           </Card>
 
@@ -163,7 +155,7 @@ export default async function ReceiptPage({ params }: ReceiptPageProps) {
             <EditNotes receiptId={id} currentNotes={receipt.notes} />
 
             {/* AI Analysis */}
-            <AIAnalysis receiptId={id} imageUrl={receipt.image_url} currentNotes={receipt.notes} />
+            <AIAnalysis receiptId={id} imageUrls={images} currentNotes={receipt.notes} />
 
             {/* JSON Upload */}
             <JsonUpload receiptId={id} />

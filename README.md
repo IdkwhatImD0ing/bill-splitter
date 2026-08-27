@@ -31,6 +31,7 @@ If you have an existing database, check the `migrations/` folder for any schema 
 
 - `001_add_notes_column.sql` - Adds a separate notes column and renames the original `notes` column to `name`
 - `002_add_breakdown_column.sql` - Adds a `breakdown` JSONB column to bill_items for storing itemized cost breakdowns from AI analysis
+- `003_add_image_urls.sql` - Adds an `image_urls` array so a receipt can hold multiple images, backfilled from the existing `image_url`
 
 ### 3. Supabase Storage
 

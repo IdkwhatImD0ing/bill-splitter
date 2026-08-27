@@ -17,6 +17,7 @@ erDiagram
         uuid id PK
         timestamptz created_at
         text image_url
+        text_array image_urls
         text name
         date date
         text notes
@@ -48,7 +49,8 @@ The main table storing receipt information.
 |--------|------|----------|---------|-------------|
 | `id` | UUID | No | `gen_random_uuid()` | Primary key |
 | `created_at` | TIMESTAMPTZ | Yes | `NOW()` | Record creation timestamp |
-| `image_url` | TEXT | Yes | - | URL to receipt image in Supabase Storage |
+| `image_url` | TEXT | Yes | - | **Deprecated.** Mirrors `image_urls[1]`; read only as a fallback for rows predating migration 003 |
+| `image_urls` | TEXT[] | No | `'{}'` | Ordered list of receipt image URLs in Supabase Storage. Source of truth |
 | `name` | TEXT | No | - | Receipt name/title |
 | `date` | DATE | No | `CURRENT_DATE` | Receipt date |
 | `notes` | TEXT | Yes | - | Optional notes/comments |
@@ -59,7 +61,8 @@ The main table storing receipt information.
 CREATE TABLE receipts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  image_url TEXT,
+  image_url TEXT, -- deprecated, mirrors image_urls[1]
+  image_urls TEXT[] NOT NULL DEFAULT '{}',
   name TEXT NOT NULL,
   date DATE NOT NULL DEFAULT CURRENT_DATE,
   notes TEXT
@@ -249,6 +252,49 @@ ALTER TABLE receipts ADD COLUMN notes TEXT;
 
 ---
 
+### 002_add_breakdown_column.sql
+
+**Purpose:** Adds a `breakdown` JSONB column to `bill_items` for the itemized
+cost breakdown produced by AI analysis. Existing rows keep a NULL breakdown.
+
+**SQL:**
+
+```sql
+ALTER TABLE bill_items ADD COLUMN breakdown JSONB;
+```
+
+---
+
+### 003_add_image_urls.sql
+
+**Purpose:** Lets a receipt hold multiple images, for bills that span several
+photos.
+
+**Background:** Receipts originally had a single `image_url`. This migration
+adds an ordered `image_urls` array and backfills it from that column.
+
+**Changes:**
+1. Add `image_urls TEXT[] NOT NULL DEFAULT '{}'`
+2. Backfill every receipt that already had an image into a one-item array
+
+`image_url` is deliberately kept. It is written on every update as a mirror of
+`image_urls[1]`, so OpenGraph cards and any not-yet-deployed code reading the
+old column keep working. `image_urls` is the source of truth — read it through
+`getReceiptImages()` in `lib/receipt-images.ts`, which falls back to
+`image_url` for rows that predate this migration.
+
+**SQL:**
+
+```sql
+ALTER TABLE receipts ADD COLUMN image_urls TEXT[] NOT NULL DEFAULT '{}';
+
+UPDATE receipts
+SET image_urls = ARRAY[image_url]
+WHERE image_url IS NOT NULL AND image_url <> '';
+```
+
+---
+
 ## Data Types
 
 ### UUID
@@ -325,7 +371,8 @@ In Supabase SQL Editor, run the contents of `supabase-schema.sql`:
 CREATE TABLE receipts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  image_url TEXT,
+  image_url TEXT, -- deprecated, mirrors image_urls[1]
+  image_urls TEXT[] NOT NULL DEFAULT '{}',
   name TEXT NOT NULL,
   date DATE NOT NULL DEFAULT CURRENT_DATE,
   notes TEXT

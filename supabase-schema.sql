@@ -5,7 +5,8 @@
 CREATE TABLE receipts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  image_url TEXT,
+  image_url TEXT, -- DEPRECATED: mirrors image_urls[1], kept for backwards compatibility
+  image_urls TEXT[] NOT NULL DEFAULT '{}', -- Ordered list of receipt images (source of truth)
   name TEXT NOT NULL,
   date DATE NOT NULL DEFAULT CURRENT_DATE,
   notes TEXT -- Optional notes/comments about the receipt

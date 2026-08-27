@@ -26,6 +26,9 @@ export interface Receipt {
   id: string
   name: string | null
   date: string
+  /** Ordered list of receipt images. Source of truth - read it via getReceiptImages(). */
+  image_urls: string[] | null
+  /** @deprecated Legacy single-image column, mirrors image_urls[0]. Only read as a fallback. */
   image_url: string | null
   notes: string | null
   bill_items?: BillItem[]
@@ -36,7 +39,7 @@ export interface Receipt {
 export interface CreateReceiptInput {
   name: string
   date: string
-  image_url?: string | null
+  image_urls?: string[]
   notes?: string
 }
 

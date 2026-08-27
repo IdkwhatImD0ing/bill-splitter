@@ -4,6 +4,7 @@ import { getPublicBill } from '@/app/actions/receipts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Receipt, StickyNote } from 'lucide-react'
 import { formatDatePST } from '@/lib/date'
+import { getReceiptImages } from '@/lib/receipt-images'
 import { CopyZelleButton } from './copy-zelle-button'
 import { BillItemDisplay } from './bill-item-display'
 import type { BillItem } from '@/lib/types'
@@ -33,6 +34,8 @@ export async function generateMetadata(
   
   const description = `${title} - $${totalAmount.toFixed(2)} split between ${peopleCount} ${peopleCount === 1 ? 'person' : 'people'} on ${formattedDate}`
   
+  const images = getReceiptImages(receipt)
+
   const metadata: Metadata = {
     title,
     description,
@@ -45,26 +48,27 @@ export async function generateMetadata(
       locale: 'en_US',
     },
     twitter: {
-      card: receipt.image_url ? 'summary_large_image' : 'summary',
+      card: images.length > 0 ? 'summary_large_image' : 'summary',
       title,
       description,
     },
   }
 
-  // If there's a receipt image, add it to OpenGraph and Twitter cards
-  if (receipt.image_url) {
+  // If there are receipt images, add them to OpenGraph and Twitter cards
+  if (images.length > 0) {
     metadata.openGraph = {
       ...metadata.openGraph,
-      images: [
-        {
-          url: receipt.image_url,
-          alt: `Receipt for ${title}`,
-        }
-      ],
+      images: images.map((url, index) => ({
+        url,
+        alt: images.length > 1
+          ? `Receipt ${index + 1} of ${images.length} for ${title}`
+          : `Receipt for ${title}`,
+      })),
     }
+    // Twitter only renders the first image
     metadata.twitter = {
       ...metadata.twitter,
-      images: [receipt.image_url],
+      images: [images[0]],
     }
   }
 
@@ -81,6 +85,7 @@ export default async function PublicBillPage({ params }: PublicBillPageProps) {
 
   const totalAmount = receipt.bill_items?.reduce((sum: number, item: BillItem) => sum + item.amount, 0) || 0
   const receiptName = receipt.name || 'Bill Split'
+  const images = getReceiptImages(receipt)
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://receiptsplit.app'
 
   // JSON-LD structured data
@@ -210,22 +215,35 @@ export default async function PublicBillPage({ params }: PublicBillPageProps) {
             </Card>
           )}
 
-          {/* Receipt Image */}
-          {receipt.image_url && (
+          {/* Receipt Images */}
+          {images.length > 0 && (
             <Card className="card-receipt overflow-hidden">
               <CardHeader>
-                <CardTitle className="text-lg text-center">Receipt</CardTitle>
+                <CardTitle className="text-lg text-center">
+                  {images.length > 1 ? `Receipt (${images.length} images)` : 'Receipt'}
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="relative rounded-xl overflow-hidden bg-muted">
-                  <Image
-                    src={receipt.image_url}
-                    alt={`Receipt image for ${receiptName} - $${totalAmount.toFixed(2)} total`}
-                    width={600}
-                    height={800}
-                    className="w-full h-auto max-h-[600px] object-contain"
-                  />
-                </div>
+              <CardContent className="space-y-3">
+                {images.map((url, index) => (
+                  <div key={url} className="relative rounded-xl overflow-hidden bg-muted">
+                    <Image
+                      src={url}
+                      alt={
+                        images.length > 1
+                          ? `Receipt image ${index + 1} of ${images.length} for ${receiptName} - $${totalAmount.toFixed(2)} total`
+                          : `Receipt image for ${receiptName} - $${totalAmount.toFixed(2)} total`
+                      }
+                      width={600}
+                      height={800}
+                      className="w-full h-auto max-h-[600px] object-contain"
+                    />
+                    {images.length > 1 && (
+                      <span className="absolute top-2 left-2 rounded-full bg-black/60 text-white text-xs font-medium px-2 py-0.5">
+                        {index + 1} / {images.length}
+                      </span>
+                    )}
+                  </div>
+                ))}
               </CardContent>
             </Card>
           )}

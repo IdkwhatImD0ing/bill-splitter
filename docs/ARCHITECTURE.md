@@ -172,7 +172,7 @@ sequenceDiagram
     UploadAPI->>Supabase: storage.upload()
     Supabase-->>UploadAPI: publicUrl
     UploadAPI-->>NewPage: { publicUrl }
-    NewPage->>ReceiptAction: createReceipt(name, date, imageUrl)
+    NewPage->>ReceiptAction: createReceipt(name, date, imageUrls)
     ReceiptAction->>Supabase: INSERT receipt
     Supabase-->>ReceiptAction: receipt.id
     ReceiptAction-->>User: Redirect to /receipts/[id]

@@ -39,3 +39,19 @@ export async function uploadImage(file: File): Promise<UploadResult> {
 
   return response.json()
 }
+
+// Uploads several images, reporting progress as each one finishes.
+export async function uploadImages(
+  files: File[],
+  onProgress?: (done: number, total: number) => void
+): Promise<UploadResult[]> {
+  const results: UploadResult[] = []
+
+  // Sequential so progress is meaningful and we don't hammer the API route
+  for (const file of files) {
+    results.push(await uploadImage(file))
+    onProgress?.(results.length, files.length)
+  }
+
+  return results
+}

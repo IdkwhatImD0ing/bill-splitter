@@ -127,10 +127,16 @@ const billSplitSchema = {
 const IMAGE_SYSTEM_PROMPT = `You are a receipt analysis assistant that calculates how much each person owes for their items.
 
 # Task
-Given a receipt image and a description of who ordered what items, calculate the total amount each person owes.
+Given one or more receipt images and a description of who ordered what items, calculate the total amount each person owes.
+
+# Multiple Images
+- You may be given several images. They are pages/sections of the SAME bill, in order, or close-up shots of it
+- Treat them as one combined receipt: merge the line items across all images
+- Watch for overlap - if the same line item appears in two images, count it ONCE
+- Totals, tax, fees and tip may appear on only one of the images; apply them to the combined subtotal
 
 # Instructions
-1. Identify all items on the receipt and their prices
+1. Identify all items across the receipt images and their prices
 2. Match each item to the person who ordered it based on the user's description
 3. Calculate each person's subtotal (sum of their item prices)
 4. Apply tax proportionally: (person's subtotal / receipt subtotal) × total tax
@@ -248,37 +254,37 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { imageUrl, prompt } = await request.json()
-    
+    const { imageUrl, imageUrls, prompt } = await request.json()
+
     if (!prompt) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 })
     }
 
+    // A receipt can span several photos. `imageUrl` is the old single-image
+    // field, still accepted so older clients keep working.
+    const images: string[] = Array.isArray(imageUrls)
+      ? imageUrls.filter((url): url is string => typeof url === 'string' && url.length > 0)
+      : imageUrl
+        ? [imageUrl]
+        : []
+
     const openai = new OpenAI({ apiKey })
 
-    // Build the request based on whether we have an image or not
-    const hasImage = !!imageUrl
-    const systemPrompt = hasImage ? IMAGE_SYSTEM_PROMPT : TEXT_ONLY_SYSTEM_PROMPT
+    // Build the request based on whether we have images or not
+    const systemPrompt = images.length > 0 ? IMAGE_SYSTEM_PROMPT : TEXT_ONLY_SYSTEM_PROMPT
 
     // User content varies based on image presence
-    const userContent = hasImage
-      ? [
-          {
-            type: 'input_image' as const,
-            image_url: imageUrl,
-            detail: 'auto' as const
-          },
-          {
-            type: 'input_text' as const,
-            text: prompt
-          }
-        ]
-      : [
-          {
-            type: 'input_text' as const,
-            text: prompt
-          }
-        ]
+    const userContent = [
+      ...images.map(url => ({
+        type: 'input_image' as const,
+        image_url: url,
+        detail: 'auto' as const
+      })),
+      {
+        type: 'input_text' as const,
+        text: prompt
+      }
+    ]
 
     // Use the Responses API with structured outputs
     const response = await openai.responses.create({
