@@ -359,7 +359,7 @@ The root layout wrapping all pages.
 
 ```typescript
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://taxes.art3m1s.me'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://bills.art3m1s.me'),
   title: {
     default: "Bill Splitter - Split Bills Easily",
     template: "%s | Bill Splitter"

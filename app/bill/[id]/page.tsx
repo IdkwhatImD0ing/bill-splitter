@@ -86,7 +86,7 @@ export default async function PublicBillPage({ params }: PublicBillPageProps) {
   const totalAmount = receipt.bill_items?.reduce((sum: number, item: BillItem) => sum + item.amount, 0) || 0
   const receiptName = receipt.name || 'Bill Split'
   const images = getReceiptImages(receipt)
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://taxes.art3m1s.me'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bills.art3m1s.me'
 
   // JSON-LD structured data
   const jsonLd = {

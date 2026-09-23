@@ -119,7 +119,7 @@ Your OpenAI API key for the AI receipt analysis feature. Get one from:
 
 **Required:** No  
 **Type:** URL  
-**Default:** `https://taxes.art3m1s.me`  
+**Default:** `https://bills.art3m1s.me`  
 **Example:** `https://your-domain.com`
 
 The public URL of your deployed application. Used for:
@@ -385,7 +385,7 @@ AUTH_SECRET=a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4
 OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 # Site URL (optional, for production)
-NEXT_PUBLIC_SITE_URL=https://taxes.art3m1s.me
+NEXT_PUBLIC_SITE_URL=https://bills.art3m1s.me
 ```
 
 **Remember:** Never commit this file to version control!
