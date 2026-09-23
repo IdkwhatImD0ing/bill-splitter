@@ -1,4 +1,4 @@
-// Shared types for Receipt Split application
+// Shared types for Bill Splitter application
 
 // Breakdown of how a bill item total was calculated (from AI analysis)
 export interface BillItemBreakdown {

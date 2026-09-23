@@ -1,6 +1,6 @@
-# Receipt Split Documentation
+# Bill Splitter Documentation
 
-Welcome to the Receipt Split documentation. This guide provides comprehensive information about the application's architecture, features, pages, API routes, and setup instructions.
+Welcome to the Bill Splitter documentation. This guide provides comprehensive information about the application's architecture, features, pages, API routes, and setup instructions.
 
 ## Quick Start
 
@@ -25,7 +25,7 @@ Welcome to the Receipt Split documentation. This guide provides comprehensive in
 
 ## Project Overview
 
-Receipt Split is a web application designed to help users split bills and track who owes what. Key capabilities include:
+Bill Splitter is a web application designed to help users split bills and track who owes what. Key capabilities include:
 
 - **Receipt Management**: Create, view, and manage receipts with optional images
 - **Bill Splitting**: Add people and track individual amounts owed

@@ -14,26 +14,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://receiptsplit.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://taxes.art3m1s.me'),
   title: {
-    default: "Receipt Split - Split Bills Easily",
-    template: "%s | Receipt Split"
+    default: "Bill Splitter - Split Bills Easily",
+    template: "%s | Bill Splitter"
   },
-  description: "Split bills and track who owes what with Receipt Split. Upload receipts, create bill splits, and share with friends.",
+  description: "Split bills and track who owes what with Bill Splitter. Upload receipts, create bill splits, and share with friends.",
   keywords: ["bill split", "receipt", "expense sharing", "split expenses", "bill tracker"],
-  authors: [{ name: "Receipt Split" }],
-  creator: "Receipt Split",
-  publisher: "Receipt Split",
+  authors: [{ name: "Bill Splitter" }],
+  creator: "Bill Splitter",
+  publisher: "Bill Splitter",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
   openGraph: {
-    title: "Receipt Split - Split Bills Easily",
-    description: "Split bills and track who owes what with Receipt Split. Upload receipts, create bill splits, and share with friends.",
+    title: "Bill Splitter - Split Bills Easily",
+    description: "Split bills and track who owes what with Bill Splitter. Upload receipts, create bill splits, and share with friends.",
     url: "/",
-    siteName: "Receipt Split",
+    siteName: "Bill Splitter",
     type: "website",
     locale: "en_US",
     images: [
@@ -41,15 +41,15 @@ export const metadata: Metadata = {
         url: "/og-image.svg",
         width: 1200,
         height: 630,
-        alt: "Receipt Split - Split Bills Easily",
+        alt: "Bill Splitter - Split Bills Easily",
         type: "image/svg+xml",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Receipt Split - Split Bills Easily",
-    description: "Split bills and track who owes what with Receipt Split.",
+    title: "Bill Splitter - Split Bills Easily",
+    description: "Split bills and track who owes what with Bill Splitter.",
     images: ["/og-image.svg"],
   },
   robots: {

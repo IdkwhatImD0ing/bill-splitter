@@ -1,6 +1,6 @@
 # API Routes Documentation
 
-This document describes the REST API routes available in Receipt Split. All API routes are implemented using Next.js Route Handlers.
+This document describes the REST API routes available in Bill Splitter. All API routes are implemented using Next.js Route Handlers.
 
 ## Overview
 

@@ -1,4 +1,4 @@
-# Receipt Split
+# Bill Splitter
 
 A simple app to split receipts with friends and share public links for them to see what they owe.
 
@@ -95,7 +95,7 @@ You can add multiple people at once using the Bulk Import feature on any receipt
 
 ## Design System
 
-Receipt Split uses a warm, receipt-paper inspired color palette that balances friendliness with financial trustworthiness.
+Bill Splitter uses a warm, receipt-paper inspired color palette that balances friendliness with financial trustworthiness.
 
 ### Color Philosophy
 

@@ -1,6 +1,6 @@
 # Architecture Overview
 
-This document describes the technical architecture of Receipt Split, including the tech stack, project structure, and data flow.
+This document describes the technical architecture of Bill Splitter, including the tech stack, project structure, and data flow.
 
 ## Tech Stack
 

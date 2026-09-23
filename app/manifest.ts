@@ -2,9 +2,9 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Receipt Split',
-    short_name: 'Receipt Split',
-    description: 'Split bills and track who owes what with Receipt Split. Upload receipts, create bill splits, and share with friends.',
+    name: 'Bill Splitter',
+    short_name: 'Bill Splitter',
+    description: 'Split bills and track who owes what with Bill Splitter. Upload receipts, create bill splits, and share with friends.',
     start_url: '/',
     display: 'standalone',
     background_color: '#faf8f5',

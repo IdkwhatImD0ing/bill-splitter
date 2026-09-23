@@ -1,6 +1,6 @@
 # Server Actions Documentation
 
-This document describes all Next.js Server Actions used in Receipt Split. Server Actions are async functions that run on the server and can be called directly from client components.
+This document describes all Next.js Server Actions used in Bill Splitter. Server Actions are async functions that run on the server and can be called directly from client components.
 
 ## Overview
 

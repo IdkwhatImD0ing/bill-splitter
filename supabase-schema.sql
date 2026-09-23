@@ -1,4 +1,4 @@
--- Receipt Split App Database Schema
+-- Bill Splitter App Database Schema
 -- Run this in your Supabase SQL Editor
 
 -- Receipts table

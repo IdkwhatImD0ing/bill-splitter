@@ -42,7 +42,7 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   
-  /* Custom Receipt Split brand colors */
+  /* Custom Bill Splitter brand colors */
   --color-brand-50: var(--brand-50);
   --color-brand-100: var(--brand-100);
   --color-brand-200: var(--brand-200);
@@ -208,7 +208,7 @@
   }
 }
 
-/* Custom utility classes for Receipt Split branding */
+/* Custom utility classes for Bill Splitter branding */
 @layer utilities {
   .bg-receipt-pattern {
     background-image: 

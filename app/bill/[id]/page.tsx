@@ -44,7 +44,7 @@ export async function generateMetadata(
       description,
       type: 'website',
       url: `/bill/${id}`,
-      siteName: 'Receipt Split',
+      siteName: 'Bill Splitter',
       locale: 'en_US',
     },
     twitter: {
@@ -86,7 +86,7 @@ export default async function PublicBillPage({ params }: PublicBillPageProps) {
   const totalAmount = receipt.bill_items?.reduce((sum: number, item: BillItem) => sum + item.amount, 0) || 0
   const receiptName = receipt.name || 'Bill Split'
   const images = getReceiptImages(receipt)
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://receiptsplit.app'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://taxes.art3m1s.me'
 
   // JSON-LD structured data
   const jsonLd = {
@@ -97,7 +97,7 @@ export default async function PublicBillPage({ params }: PublicBillPageProps) {
     url: `${baseUrl}/bill/${id}`,
     isPartOf: {
       '@type': 'WebSite',
-      name: 'Receipt Split',
+      name: 'Bill Splitter',
       url: baseUrl,
     },
     breadcrumb: {
@@ -106,7 +106,7 @@ export default async function PublicBillPage({ params }: PublicBillPageProps) {
         {
           '@type': 'ListItem',
           position: 1,
-          name: 'Receipt Split',
+          name: 'Bill Splitter',
           item: baseUrl,
         },
         {
@@ -250,7 +250,7 @@ export default async function PublicBillPage({ params }: PublicBillPageProps) {
 
           {/* Footer */}
           <p className="text-center text-sm text-muted-foreground pt-4">
-            Shared via <span className="font-medium text-brand-600 dark:text-brand-400">Receipt Split</span>
+            Shared via <span className="font-medium text-brand-600 dark:text-brand-400">Bill Splitter</span>
           </p>
         </div>
       </div>

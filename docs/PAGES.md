@@ -1,6 +1,6 @@
 # Pages Documentation
 
-This document describes all pages in the Receipt Split application, including their routes, functionality, and implementation details.
+This document describes all pages in the Bill Splitter application, including their routes, functionality, and implementation details.
 
 ## Page Overview
 
@@ -318,7 +318,7 @@ const jsonLd = {
 - **Zelle Card**: Payment info with copy-to-clipboard button
 - **Notes Card**: Displayed if notes exist
 - **Receipt Image**: Displayed if image exists
-- **Footer**: "Shared via Receipt Split" branding
+- **Footer**: "Shared via Bill Splitter" branding
 
 ### Child Components
 
@@ -359,10 +359,10 @@ The root layout wrapping all pages.
 
 ```typescript
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://receiptsplit.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://taxes.art3m1s.me'),
   title: {
-    default: "Receipt Split - Split Bills Easily",
-    template: "%s | Receipt Split"
+    default: "Bill Splitter - Split Bills Easily",
+    template: "%s | Bill Splitter"
   },
   description: "Split bills and track who owes what...",
   keywords: ["bill split", "receipt", "expense sharing"],

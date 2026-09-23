@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://receiptsplit.app'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://taxes.art3m1s.me'
   
   return {
     rules: [

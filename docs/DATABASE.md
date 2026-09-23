@@ -1,10 +1,10 @@
 # Database Documentation
 
-This document describes the database schema, relationships, and migrations for Receipt Split.
+This document describes the database schema, relationships, and migrations for Bill Splitter.
 
 ## Overview
 
-Receipt Split uses **Supabase** as its database provider, which runs on **PostgreSQL**. The database consists of three main tables with relationships between them.
+Bill Splitter uses **Supabase** as its database provider, which runs on **PostgreSQL**. The database consists of three main tables with relationships between them.
 
 ## Entity Relationship Diagram
 
@@ -328,7 +328,7 @@ Timestamp with timezone for all date/time fields:
 
 ## Supabase Storage
 
-In addition to the database, Receipt Split uses Supabase Storage for receipt images.
+In addition to the database, Bill Splitter uses Supabase Storage for receipt images.
 
 ### Bucket Configuration
 
@@ -365,7 +365,7 @@ To set up the database for a new installation:
 In Supabase SQL Editor, run the contents of `supabase-schema.sql`:
 
 ```sql
--- Receipt Split App Database Schema
+-- Bill Splitter App Database Schema
 
 -- Receipts table
 CREATE TABLE receipts (

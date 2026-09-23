@@ -32,7 +32,7 @@ export default async function Dashboard() {
               <span className="text-xl">🧾</span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-gradient-brand">
-              Receipt Split
+              Bill Splitter
             </h1>
           </div>
           

@@ -1,6 +1,6 @@
 # Features Documentation
 
-This document provides comprehensive documentation for all features in Receipt Split.
+This document provides comprehensive documentation for all features in Bill Splitter.
 
 ## Feature Overview
 
@@ -20,7 +20,7 @@ This document provides comprehensive documentation for all features in Receipt S
 
 ## Authentication
 
-Receipt Split uses a simple password-based authentication system with JWT tokens.
+Bill Splitter uses a simple password-based authentication system with JWT tokens.
 
 ### How It Works
 
@@ -254,7 +254,7 @@ The importer accepts alternative field names:
 
 1. Export data from a spreadsheet or other tool
 2. Format as JSON array
-3. Upload or paste into Receipt Split
+3. Upload or paste into Bill Splitter
 4. All people are added instantly
 
 ---
@@ -381,7 +381,7 @@ The Zelle number is currently hardcoded in the application. To change it, update
 
 ## Design System
 
-Receipt Split uses a warm, receipt-paper inspired design.
+Bill Splitter uses a warm, receipt-paper inspired design.
 
 ### Color Philosophy
 
@@ -422,7 +422,7 @@ Full dark mode support with automatic detection based on system preferences.
 
 ## Progressive Web App (PWA)
 
-Receipt Split can be installed as a PWA on mobile devices.
+Bill Splitter can be installed as a PWA on mobile devices.
 
 ### Installation
 

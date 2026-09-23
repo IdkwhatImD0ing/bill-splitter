@@ -1,6 +1,6 @@
 # Components Documentation
 
-This document describes all reusable components in Receipt Split, including base UI components and feature-specific components.
+This document describes all reusable components in Bill Splitter, including base UI components and feature-specific components.
 
 ## Component Organization
 

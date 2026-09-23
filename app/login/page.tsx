@@ -38,7 +38,7 @@ export default function LoginPage() {
             <span className="text-2xl">🧾</span>
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight text-gradient-brand">
-            Receipt Split
+            Bill Splitter
           </CardTitle>
           <CardDescription className="text-muted-foreground">
             Enter the password to continue
